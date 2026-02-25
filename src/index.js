@@ -6,85 +6,52 @@ import { getResult, processData, copy } from "./helpers.js";
 import { config, answer } from "./config.js";
 
 const { on, showResult, run } = new Flow("..\\icons\\app.png");
-const COIN_LIST_FILE = "coin_list.json";
-
-// The VIP override list to prevent meme coins from stealing major tickers
-const majorCoins = {
-  btc: "bitcoin",
-  eth: "ethereum",
-  usdt: "tether",
-  bnb: "binancecoin",
-  sol: "solana",
-  xrp: "ripple",
-  usdc: "usd-coin",
-  ada: "cardano",
-  doge: "dogecoin",
-  xmr: "monero",
-};
 
 on("query", async (params) => {
   const [count, query] = processData(params[0] || "");
-  const lowerQuery = query.toLowerCase();
 
   if (query.length <= 1) return showResult(answer.wait);
 
   try {
-    let coinList = [];
+    // KuCoin strictly formats its trading pairs as "BTC-USDT", "XMR-USDT", etc.
+    const ticker = query.toUpperCase() + "-USDT";
 
-    if (fs.existsSync(COIN_LIST_FILE)) {
-      coinList = JSON.parse(fs.readFileSync(COIN_LIST_FILE, "utf-8"));
-    } else {
-      const listRes = await axios.get(`${config.apiBase}coins/list`);
-      coinList = listRes.data;
-      fs.writeFileSync(COIN_LIST_FILE, JSON.stringify(coinList));
-    }
-
-    let exactMatch = null;
-
-    // 1. Smart Match: Check our major coins override list first
-    if (majorCoins[lowerQuery]) {
-      exactMatch = coinList.find((c) => c.id === majorCoins[lowerQuery]);
-    }
-
-    // 2. If not a major coin, search by exact CoinGecko ID (e.g. typing "bitcoin")
-    if (!exactMatch) {
-      exactMatch = coinList.find((c) => c.id.toLowerCase() === lowerQuery);
-    }
-
-    // 3. Fallback: Search by symbol and take the first result
-    if (!exactMatch) {
-      exactMatch = coinList.find((c) => c.symbol.toLowerCase() === lowerQuery);
-    }
-
-    // If still nothing, keep waiting
-    if (!exactMatch) return showResult(answer.wait);
-
-    const priceRes = await axios.get(
-      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd&include_24hr_change=true`,
+    const res = await axios.get(
+      `${config.apiBase}market/stats?symbol=${ticker}`,
     );
 
+    // KuCoin returns a "200000" code for success. If it fails (e.g., invalid coin), we show the wait screen.
+    if (res.data.code !== "200000" || !res.data.data) {
+      return showResult(answer.wait);
+    }
+
+    const marketData = res.data.data;
+
     const coinData = {
-      symbol: exactMatch.symbol.toUpperCase(),
-      price: priceRes.data[exactMatch.id].usd,
-      change24h: priceRes.data[exactMatch.id].usd_24h_change,
-      id: exactMatch.id,
+      symbol: query.toUpperCase(),
+      price: marketData.last,
+      // KuCoin returns the change rate as a raw decimal (e.g., 0.05 for 5%), so we convert it to a standard percentage
+      change24h: parseFloat(marketData.changeRate) * 100,
+      id: query.toUpperCase(),
     };
 
     return showResult(...getResult(coinData, count));
   } catch (err) {
+    // Check if the error is specifically a 429 Rate Limit
     if (err.response && err.response.status === 429) {
       return showResult({
         title: "Rate Limit Reached",
-        subtitle: "You typed too fast! Please wait 60 seconds.",
+        subtitle: "You typed a bit too fast! Please pause for a second.",
         iconPath: `${config.iconsPath}error.png`,
       });
     }
-    return showResult(answer.error(err));
+
+    // If it is a 404 (Coin doesn't exist on KuCoin) or any other network error, show a generic fail
+    return showResult(answer.notFound);
   }
 });
 
 on("open_result", (params) => {
-  // Uses the native Windows cmd to force the default browser to open the URL
   exec(`start "" "${params[0]}"`);
 });
 

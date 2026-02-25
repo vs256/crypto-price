@@ -2,15 +2,15 @@
 
 A fast, lightweight cryptocurrency price tracker for [Flow Launcher](https://github.com/Flow-Launcher/Flow.Launcher). 
 
-Type your favorite coin's ticker symbol (or full name) directly into Flow Launcher to instantly get the current USD price, powered by the CoinGecko API.
+Type your favorite coin's ticker symbol (or full name) directly into Flow Launcher to instantly get the current USD price, powered by the KuCoin API.
 
 ![CryptoPrice Demo](https://raw.githubusercontent.com/vs256/crypto-price/main/images/1.png)
 
 ## ✨ Features
 * **Lightning Fast:** Caches the master coin list locally so searching as you type is instantaneous.
-* **Massive Library:** Supports over 1,000+ cryptocurrencies (including privacy coins like XMR) via CoinGecko.
+* **Massive Library:** Supports over 1,000+ cryptocurrencies (including privacy coins like XMR) via KuCoin.
 * **Search:** Search by ticker symbol (`btc`, `eth`).
-* **Quick Actions:** * `Enter`: Opens the coin's live chart directly on CoinGecko.
+* **Quick Actions:** * `Enter`: Opens the coin's live chart directly on KuCoin.
   * `Alt + Enter`: Copies the formatted price directly to your clipboard.
 
 ## 🚀 Installation
@@ -42,7 +42,7 @@ Trigger the plugin using the action keyword `crypto` followed by a space and you
 ## 🛠️ Built With
 * [Node.js](https://nodejs.org/)
 * [Axios](https://axios-http.com/) - For handling API requests.
-* [CoinGecko API](https://www.coingecko.com/en/api) - Free, rate-limit friendly cryptocurrency data.
+* [KuCoin API](https://www.kucoin.com/api) - Free, rate-limit friendly cryptocurrency data.
 * [Flow Launcher Helper](https://www.npmjs.com/package/flow-launcher-helper) - Boilerplate for JSON-RPC communication.
 
 ## 📄 License

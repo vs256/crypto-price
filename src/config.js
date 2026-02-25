@@ -1,5 +1,5 @@
 export const config = {
-    apiBase: "https://api.coingecko.com/api/v3/",
+    apiBase: "https://api.kucoin.com/api/v1/",
     iconsPath: ".\\icons\\",
 }
 
