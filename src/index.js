@@ -5,13 +5,26 @@ import { Flow } from "flow-launcher-helper";
 import { getResult, processData, copy } from "./helpers.js";
 import { config, answer } from "./config.js";
 
-const { on, showResult, run } = new Flow("..\\icons\\app.svg");
-
-// Master list cached locally to prevent 429 Rate Limit errors
+const { on, showResult, run } = new Flow("..\\icons\\app.png");
 const COIN_LIST_FILE = "coin_list.json";
+
+// The VIP override list to prevent meme coins from stealing major tickers
+const majorCoins = {
+    'btc': 'bitcoin',
+    'eth': 'ethereum',
+    'usdt': 'tether',
+    'bnb': 'binancecoin',
+    'sol': 'solana',
+    'xrp': 'ripple',
+    'usdc': 'usd-coin',
+    'ada': 'cardano',
+    'doge': 'dogecoin',
+    'xmr': 'monero'
+};
 
 on("query", async (params) => {
   const [count, query] = processData(params[0] || "");
+  const lowerQuery = query.toLowerCase();
 
   if (query.length <= 1) return showResult(answer.wait);
 
@@ -19,19 +32,31 @@ on("query", async (params) => {
     let coinList = [];
 
     if (fs.existsSync(COIN_LIST_FILE)) {
-      const fileData = fs.readFileSync(COIN_LIST_FILE, "utf-8");
-      coinList = JSON.parse(fileData);
+      coinList = JSON.parse(fs.readFileSync(COIN_LIST_FILE, "utf-8"));
     } else {
       const listRes = await axios.get(`${config.apiBase}coins/list`);
       coinList = listRes.data;
       fs.writeFileSync(COIN_LIST_FILE, JSON.stringify(coinList));
     }
 
-    const exactMatch = coinList.find(
-      (c) => c.symbol.toLowerCase() === query.toLowerCase() || 
-             c.id.toLowerCase() === query.toLowerCase()
-    );
+    let exactMatch = null;
 
+    // 1. Smart Match: Check our major coins override list first
+    if (majorCoins[lowerQuery]) {
+       exactMatch = coinList.find(c => c.id === majorCoins[lowerQuery]);
+    }
+
+    // 2. If not a major coin, search by exact CoinGecko ID (e.g. typing "bitcoin")
+    if (!exactMatch) {
+        exactMatch = coinList.find(c => c.id.toLowerCase() === lowerQuery);
+    }
+
+    // 3. Fallback: Search by symbol and take the first result
+    if (!exactMatch) {
+        exactMatch = coinList.find(c => c.symbol.toLowerCase() === lowerQuery);
+    }
+
+    // If still nothing, keep waiting
     if (!exactMatch) return showResult(answer.wait);
 
     const priceRes = await axios.get(
@@ -52,7 +77,7 @@ on("query", async (params) => {
       return showResult({
           title: "Rate Limit Reached",
           subtitle: "You typed too fast! Please wait 60 seconds.",
-          iconPath: `${config.iconsPath}ratelimit.svg`
+          iconPath: `${config.iconsPath}error.png`
       });
     }
     return showResult(answer.error(err));
