@@ -5,7 +5,6 @@ A fast, lightweight cryptocurrency price tracker for [Flow Launcher](https://git
 Type your favorite coin's ticker symbol (or full name) directly into Flow Launcher to instantly get the current USD price, powered by the CoinGecko API.
 
 ![CryptoPrice Demo](https://raw.githubusercontent.com/vs256/crypto-price/main/images/1.png)
-*(Note: Replace the image link above with a screenshot or GIF of your plugin in action!)*
 
 ## ✨ Features
 * **Lightning Fast:** Caches the master coin list locally so searching as you type is instantaneous.
