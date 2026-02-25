@@ -5,7 +5,7 @@
 // import { getResult, processData, copy } from "./helpers.js";
 // import { config, answer } from "./config.js";
 
-// const { on, showResult, run } = new Flow("..\\icons\\app.png");
+// const { on, showResult, run } = new Flow("..\\icons\\app.svg");
 
 // // We will save the master list locally to avoid rate limits
 // const COIN_LIST_FILE = "coin_list.json";
@@ -58,7 +58,7 @@
 //       return showResult({
 //           title: "Rate Limit Reached",
 //           subtitle: "You typed too fast! Please wait 60 seconds for CoinGecko to cool down.",
-//           iconPath: `${config.iconsPath}error.png`
+//           iconPath: `${config.iconsPath}ratelimit.svg`
 //       });
 //     }
 //     return showResult(answer.error(err));

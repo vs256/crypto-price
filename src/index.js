@@ -5,7 +5,7 @@ import { Flow } from "flow-launcher-helper";
 import { getResult, processData, copy } from "./helpers.js";
 import { config, answer } from "./config.js";
 
-const { on, showResult, run } = new Flow("..\\icons\\app.png");
+const { on, showResult, run } = new Flow("..\\icons\\app.svg");
 
 // We will save the master list locally to avoid rate limits
 const COIN_LIST_FILE = "coin_list.json";
@@ -32,8 +32,9 @@ on("query", async (params) => {
 
     // 3. Instantly search our local file for the exact coin (0 API calls!)
     const exactMatch = coinList.find(
-      (c) => c.symbol.toLowerCase() === query.toLowerCase() || 
-             c.id.toLowerCase() === query.toLowerCase()
+      (c) =>
+        c.symbol.toLowerCase() === query.toLowerCase() ||
+        c.id.toLowerCase() === query.toLowerCase(),
     );
 
     // If they are still typing and haven't hit a valid coin yet, just show the wait UI
@@ -41,24 +42,24 @@ on("query", async (params) => {
 
     // 4. We only hit the API for the price if we found an exact match locally!
     const priceRes = await axios.get(
-      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd`
+      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd`,
     );
 
     const coinData = {
       symbol: exactMatch.symbol.toUpperCase(),
       price: priceRes.data[exactMatch.id].usd,
-      id: exactMatch.id
+      id: exactMatch.id,
     };
 
     return showResult(...getResult(coinData, count));
-
   } catch (err) {
     // 5. Handle the 429 error gracefully so it doesn't just look broken
     if (err.response && err.response.status === 429) {
       return showResult({
-          title: "Rate Limit Reached",
-          subtitle: "You typed too fast! Please wait 60 seconds for CoinGecko to cool down.",
-          iconPath: `${config.iconsPath}error.png`
+        title: "Rate Limit Reached",
+        subtitle:
+          "You typed too fast! Please wait 60 seconds for CoinGecko to cool down.",
+        iconPath: `${config.iconsPath}ratelimit.svg`,
       });
     }
     return showResult(answer.error(err));
