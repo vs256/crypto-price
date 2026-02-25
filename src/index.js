@@ -5,9 +5,9 @@ import { Flow } from "flow-launcher-helper";
 import { getResult, processData, copy } from "./helpers.js";
 import { config, answer } from "./config.js";
 
-const { on, showResult, run } = new Flow("..\\icons\\app.svg");
+const { on, showResult, run } = new Flow("..\\icons\\app.png");
 
-// We will save the master list locally to avoid rate limits
+// Master list cached locally to prevent 429 Rate Limit errors
 const COIN_LIST_FILE = "coin_list.json";
 
 on("query", async (params) => {
@@ -18,49 +18,41 @@ on("query", async (params) => {
   try {
     let coinList = [];
 
-    // 1. Check if we already have the coin list cached locally
     if (fs.existsSync(COIN_LIST_FILE)) {
       const fileData = fs.readFileSync(COIN_LIST_FILE, "utf-8");
       coinList = JSON.parse(fileData);
     } else {
-      // 2. If not, fetch it from CoinGecko ONCE and save it.
-      // This endpoint gets the IDs and Symbols for all coins (it takes a second on the very first run)
       const listRes = await axios.get(`${config.apiBase}coins/list`);
       coinList = listRes.data;
       fs.writeFileSync(COIN_LIST_FILE, JSON.stringify(coinList));
     }
 
-    // 3. Instantly search our local file for the exact coin (0 API calls!)
     const exactMatch = coinList.find(
-      (c) =>
-        c.symbol.toLowerCase() === query.toLowerCase() ||
-        c.id.toLowerCase() === query.toLowerCase(),
+      (c) => c.symbol.toLowerCase() === query.toLowerCase() || 
+             c.id.toLowerCase() === query.toLowerCase()
     );
 
-    // If they are still typing and haven't hit a valid coin yet, just show the wait UI
     if (!exactMatch) return showResult(answer.wait);
 
-    // 4. We only hit the API for the price if we found an exact match locally!
     const priceRes = await axios.get(
-      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd&include_24hr_change=true`,
+      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd&include_24hr_change=true`
     );
 
     const coinData = {
       symbol: exactMatch.symbol.toUpperCase(),
       price: priceRes.data[exactMatch.id].usd,
-      change24h: priceRes.data[exactMatch.id].usd_24h_change, // Capture the new data point
-      id: exactMatch.id,
+      change24h: priceRes.data[exactMatch.id].usd_24h_change,
+      id: exactMatch.id
     };
 
     return showResult(...getResult(coinData, count));
+
   } catch (err) {
-    // 5. Handle the 429 error gracefully so it doesn't just look broken
     if (err.response && err.response.status === 429) {
       return showResult({
-        title: "Rate Limit Reached",
-        subtitle:
-          "You typed too fast! Please wait 60 seconds for CoinGecko to cool down.",
-        iconPath: `${config.iconsPath}ratelimit.svg`,
+          title: "Rate Limit Reached",
+          subtitle: "You typed too fast! Please wait 60 seconds.",
+          iconPath: `${config.iconsPath}error.png`
       });
     }
     return showResult(answer.error(err));
