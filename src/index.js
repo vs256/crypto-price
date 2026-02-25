@@ -42,12 +42,13 @@ on("query", async (params) => {
 
     // 4. We only hit the API for the price if we found an exact match locally!
     const priceRes = await axios.get(
-      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd`,
+      `${config.apiBase}simple/price?ids=${exactMatch.id}&vs_currencies=usd&include_24hr_change=true`,
     );
 
     const coinData = {
       symbol: exactMatch.symbol.toUpperCase(),
       price: priceRes.data[exactMatch.id].usd,
+      change24h: priceRes.data[exactMatch.id].usd_24h_change, // Capture the new data point
       id: exactMatch.id,
     };
 
