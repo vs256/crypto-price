@@ -5,7 +5,7 @@ import { Flow } from "flow-launcher-helper";
 import { getResult, processData, copy } from "./helpers.js";
 import { config, answer } from "./config.js";
 
-const { on, showResult, run } = new Flow("..\\icons\\app.png");
+const { on, showResult, run } = new Flow("..\\icons\\app.svg");
 
 // Master list cached locally to prevent 429 Rate Limit errors
 const COIN_LIST_FILE = "coin_list.json";
@@ -52,7 +52,7 @@ on("query", async (params) => {
       return showResult({
           title: "Rate Limit Reached",
           subtitle: "You typed too fast! Please wait 60 seconds.",
-          iconPath: `${config.iconsPath}error.png`
+          iconPath: `${config.iconsPath}ratelimit.svg`
       });
     }
     return showResult(answer.error(err));
