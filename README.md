@@ -2,14 +2,15 @@
 
 A fast, lightweight cryptocurrency price tracker for [Flow Launcher](https://github.com/Flow-Launcher/Flow.Launcher). 
 
-Type your favorite coin's ticker symbol (or full name) directly into Flow Launcher to instantly get the current USD price, powered by the KuCoin API.
+Type your favorite coin's ticker symbol directly into Flow Launcher to instantly get the current USD price, powered by the KuCoin API.
 
 ![CryptoPrice Demo](https://raw.githubusercontent.com/vs256/crypto-price/main/images/1.png)
 
 ## ✨ Features
-* **Lightning Fast:** Caches the master coin list locally so searching as you type is instantaneous.
-* **Massive Library:** Supports over 1,000+ cryptocurrencies (including privacy coins like XMR) via KuCoin.
-* **Search:** Search by ticker symbol (`btc`, `eth`).
+* **Keyless & Unthrottled:** Pulls live market data directly from KuCoin's public exchange API for instant, rate-limit-free searches without requiring an API key.
+* **Massive Library:** Supports over 1,000+ cryptocurrencies (including privacy coins like XMR).
+* **Precision Search:** Search instantly by ticker symbol (`btc`, `eth`, `sol`).
+* **Smart Formatting:** Large numbers are beautifully formatted with commas (e.g., `$66,000.00`).
 * **Quick Actions:** * `Enter`: Opens the coin's live chart directly on KuCoin.
   * `Alt + Enter`: Copies the formatted price directly to your clipboard.
 
@@ -31,8 +32,14 @@ Once available in the official store, you can install this plugin directly from 
 
 Trigger the plugin using the action keyword `crypto` followed by a space and your coin query:
 
-* `crypto btc` (Searches by ticker)
-* `crypto 10 xmr` (Calculates the value of 10 Monero)
+* `crypto btc` (Gets the current price of 1 Bitcoin)
+* `crypto 10 xmr` (Calculates the total USD value of 10 Monero)
+
+## 🔮 Future Work (v1.3.0+)
+The next major update will introduce direct currency conversions, turning the plugin into a powerful calculation tool for traders:
+* **Crypto-to-Crypto Swaps:** Type `crypto 0.5 btc xmr` to instantly see how much Monero you can get for 0.5 Bitcoin.
+* **Fiat Conversions:** Support for calculating exact crypto amounts based on USD input (e.g., `crypto 100 usd btc` to see how much Bitcoin $100 buys). 
+* **Expanded Base Currencies:** Native support for checking prices in EUR, GBP, and other major world currencies.
 
 ## ⚙️ Requirements
 * Flow Launcher v1.17+
