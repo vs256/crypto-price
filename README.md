@@ -32,7 +32,6 @@ Once available in the official store, you can install this plugin directly from 
 Trigger the plugin using the action keyword `crypto` followed by a space and your coin query:
 
 * `crypto btc` (Searches by ticker)
-* `crypto ethereum` (Searches by full name)
 * `crypto 10 xmr` (Calculates the value of 10 Monero)
 
 ## ⚙️ Requirements
